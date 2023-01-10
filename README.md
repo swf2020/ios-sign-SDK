@@ -32,8 +32,9 @@ cocoapods == 最新版
                                                           withMethod: SIGN_METHOD_POST // api的请求方法
                                                             withHost: host
                                                              isHttps: isHttps];
-    [request addQueryParameter:@"ff" forKey: @"gg"]; // query params
-    [request addQueryParameter:@"bb" forKey: @"aa"]; // 暂不支持枚举
+    NSArray *ar1 = @[@"zb",@"zb2,d d,aa,d,d,,d,", @"ab"];
+    NSArray *ar0 = @[@"ab,cd"];
+   [request addQueryParameter: ar0 forKey: @"isNew"]; // 添加query                                                       
     NSString *body = @"demo"; // body
     [request setBodyString: body withContentType: @""];
     [apiClient invokeWithRequest: request];

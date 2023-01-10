@@ -3,7 +3,7 @@
  */
 #import "SignCommonRequest.h"
 #import "SignUtils.h"
-    
+
 @implementation SignCommonRequest
 
 @synthesize host = _host;
@@ -52,8 +52,8 @@
     [self.pathParameters setValue: value forKey: key];
 }
     
-- (void) addQueryParameter: (NSString*)value forKey:(NSString *)key {
-    [self.queryParameters setValue: value forKey: key];
+- (void) addQueryParameter: (NSArray*)value forKey:(NSString *)key {
+    [self.queryParameters setObject: value forKey: key];
 }
     
 - (void) addFormParameter: (NSString*)value forKey:(NSString *)key {
@@ -115,13 +115,14 @@
     NSString *signerDate = [self getHeaderValueByName: SIGN_HEADER_DATE];
     NSDate* now = [NSDate date];
     NSDateFormatter* df = [[NSDateFormatter alloc] init ];
-    if ([signerDate isEqualToString: @""])
+    if ([signerDate isEqualToString: @""]) {
         // add current time to `Date` Header
         df.locale = [NSLocale currentLocale];
         df.timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
         [df setDateFormat:@"yyyyMMdd'T'HHmmss'Z'"];
         signerDate = [df stringFromDate: now];
         [self addHeader: signerDate forName: SIGN_HEADER_DATE];
+    }
     
     [self putHeader: [signer appKey] forName: SIGN_HEADER_APP_KEY];
     [self putHeader: [signer appSecret] forName: SIGN_HEADER_APP_SECRET];
@@ -131,12 +132,18 @@
     NSArray *signatureHeaders = [self getSignedHeaders];
     // 拼接 canonicalRequestStr
     NSString * canonicalRequestStr = [self createCanonicalRequest: signatureHeaders withDigestBody: messageDigestContent];
+    NSLog(@"canonicalRequestStr: \n %@ ", canonicalRequestStr);
     // 创建签名字符串
     NSString *stringToSign = [self createStringToSign: canonicalRequestStr forSignerDate: signerDate];
+    NSLog(@"stringToSign: \n %@", stringToSign);
     // 创建十六进制签名字符串
     NSString *signatureHex = [self computeSignature: stringToSign];
+    NSLog(@"signatureHex: \n %@", signatureHex);
+
     // 创建authorizationHeader
     NSString * authorizationHeader = [self buildAuthorizationHeader: signatureHeaders forSignatureHex:signatureHex];
+    NSLog(@"authorizationHeader: \n %@", authorizationHeader);
+
     [self addHeader: authorizationHeader forName: SIGN_AUTHORIZATION];
 }
 
@@ -157,35 +164,38 @@
 
 - (NSString *) getCanonicalizedQueryString {
     NSMutableDictionary * parameters = [[NSMutableDictionary alloc] init];
-    if ([self.formParameters count] > 0){
-        [parameters addEntriesFromDictionary: self.formParameters];
-    }
+//    if ([self.formParameters count] > 0){
+//        [parameters addEntriesFromDictionary: self.formParameters];
+//    }
     if([self.queryParameters count] > 0){
         [parameters addEntriesFromDictionary: self.queryParameters];
     }
     if ([parameters count] == 0) {
         return @"";
     }
-    
+
     NSArray * sortedKeys = [[parameters allKeys] sortedArrayUsingComparator:^NSComparisonResult(__strong id obj1,__strong id obj2) {
         NSString *str1=(NSString *)obj1;
         NSString *str2=(NSString *)obj2;
         return [str1 compare:str2];
     }];
     
-    // append Password=test&Username=test&password=test&username=test
     NSMutableString* s = [[NSMutableString alloc] init];
+    NSCharacterSet *URLCombinedCharacterSet = [[NSCharacterSet characterSetWithCharactersInString:@" \"#%/:,<>?@[\\]^`{|}"] invertedSet];
     for(int i = 0 ; i < sortedKeys.count ; i++){
         id key = [sortedKeys objectAtIndex:i];
-        [s appendString:key];
         
-        NSString* value = [parameters objectForKey:key];
-        if (![NSString isStringEmpty: value]) {
-            [s appendFormat:@"=%@" , value];
+        NSArray* value = [parameters objectForKey:key];
+        NSArray *sortArr4 = [value sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2){
+                     return [obj1 compare:obj2];}];
+        for (int j = 0; j < sortArr4.count; j++) {
+            [s appendString:[key stringByAddingPercentEncodingWithAllowedCharacters: URLCombinedCharacterSet]];
+            [s appendFormat:@"=%@" , [sortArr4[j] stringByAddingPercentEncodingWithAllowedCharacters: URLCombinedCharacterSet]];
+            if ((i != sortedKeys.count - 1) || (j != sortArr4.count - 1)) {
+                [s appendString:@"&"];
+            }
         }
-        if (i != sortedKeys.count - 1) {
-            [s appendString:@"&"];
-        }
+
     }
     return s;
 }

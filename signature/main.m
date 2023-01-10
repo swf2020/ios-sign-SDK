@@ -1,3 +1,5 @@
+
+
 /*
  * Copyright (c) Huawei Technologies CO., Ltd. 2022-2022. All rights reserved.
  */
@@ -24,11 +26,18 @@ int main(int argc, char * argv[]) {
                                                           withMethod: SIGN_METHOD_POST // api的请求方法
                                                             withHost: host
                                                              isHttps: isHttps];
-    [request addQueryParameter:@"ff" forKey: @"gg"]; // query params
-    [request addQueryParameter:@"bb" forKey: @"aa"]; // 暂不支持枚举
+    NSArray *ar1 = @[@"zb",@"zb2,d d,aa,d,d,,d,", @"ab"];
+    NSArray *ar0 = @[@"ab,cd"];
+    [request addQueryParameter: ar0 forKey: @"isNew"];
+//    NSArray *ar2 = @[@"cd",@"ue", @"ac"];
+//
+//    [request addQueryParameter:ar2 forKey: @"onSale"]; // query params
     NSString *body = @"demo"; // body
     [request setBodyString: body withContentType: @""];
+//    [request addHeader: @"20230110T001719Z" forName: SIGN_HEADER_DATE];
+
     [apiClient invokeWithRequest: request];
 
     return UIApplicationMain(argc, argv, nil, appDelegateClassName);
 }
+

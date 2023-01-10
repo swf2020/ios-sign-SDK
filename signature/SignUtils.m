@@ -60,7 +60,8 @@
 }
 
 +(NSString*) buildParams: (NSDictionary*)params {
-    NSCharacterSet* charset = [[NSCharacterSet characterSetWithCharactersInString:@"+= \"#%/:<>?@[\\]^`{|}"] invertedSet];
+    NSCharacterSet *URLCombinedCharacterSet = [[NSCharacterSet characterSetWithCharactersInString:@"\"#%/:,<>?@[\\]^`{|}"] invertedSet];
+    
     NSMutableString * r = [[NSMutableString alloc] init];
     if (nil == params || [params count] == 0) {
         return @"";
@@ -72,8 +73,11 @@
         } else {
             isFirst = false;
         }
-        NSString* p = [params objectForKey: key];
-        [r appendFormat:@"%@=%@", key , [p stringByAddingPercentEncodingWithAllowedCharacters: charset]];
+        NSArray* p = [params objectForKey: key];
+        for (int i = 0; i < p.count; i++) {
+            [r appendFormat:@"%@=%@", [key stringByAddingPercentEncodingWithAllowedCharacters: URLCombinedCharacterSet], [p[i] stringByAddingPercentEncodingWithAllowedCharacters: URLCombinedCharacterSet]];
+        }
+
     }
     return r;
 }

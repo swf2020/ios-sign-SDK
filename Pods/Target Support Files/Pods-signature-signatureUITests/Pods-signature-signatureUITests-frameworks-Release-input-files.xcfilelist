@@ -1,0 +1,4 @@
+${PODS_ROOT}/Target Support Files/Pods-signature-signatureUITests/Pods-signature-signatureUITests-frameworks.sh
+${BUILT_PRODUCTS_DIR}/AFNetworking/AFNetworking.framework
+${BUILT_PRODUCTS_DIR}/ASIHTTPRequest/ASIHTTPRequest.framework
+${BUILT_PRODUCTS_DIR}/Reachability/Reachability.framework

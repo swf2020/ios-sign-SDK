@@ -39,6 +39,11 @@
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:config];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    manager.securityPolicy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
+    manager.securityPolicy.allowInvalidCertificates = YES; // 不校验服务端证书
+    [manager.securityPolicy setValidatesDomainName:NO];
+
     NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:newRequest uploadProgress:nil downloadProgress:nil completionHandler:^(NSURLResponse * _Nonnull response, id _Nullable responseObject, NSError * _Nullable error){
         if(error) {
             NSLog(@"Error: %@\n", error);

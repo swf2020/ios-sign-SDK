@@ -13,6 +13,7 @@ static NSString* const SIGN_HEADER_DATE = @"x-sdk-date";
 
 // 签名认证头字段--可自定义
 static NSString* const SIGN_AUTHORIZATION = @"Authorization";
+//static NSString* const SIGN_AUTHORIZATION = @"v587sign";
 
 //请求Header Host
 static NSString* const SIGN_HEADER_HOST = @"Host";
@@ -84,5 +85,7 @@ static NSString* const MESSAGEDIGESTALGORITHM = @"SDK-HMAC-SHA256";
 - (NSString *) computeSignature: (NSString *) stringToSign;
 // 把签名头字段添加到请求头中
 - (NSString *) buildAuthorizationHeader: (NSArray*)signatureHeaders forSignatureHex: (NSString *) signatureHex;
+
+
 
 @end
